@@ -220,7 +220,7 @@ Contributions are welcome!
 4. Open a Pull Request.
     
 
-Please open an [Issue](https://www.google.com/search?q=https://github.com/FlacSy/lynx-logger/issues) for any bugs or feature requests.
+Please open an [Issue](https://github.com/FlacSy/lynx-logger/issues) for any bugs or feature requests.
 
 ## 📄 License
 
