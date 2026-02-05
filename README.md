@@ -1,234 +1,189 @@
-# LynxLogger
+<div align="center">
 
-Универсальная библиотека структурированного логирования на основе `structlog` с расширенными возможностями для Python приложений.
+  # 🐱 Lynx Logger
 
-## Особенности
-- **Простая настройка** - от одной строки кода до детальной конфигурации
-- **Структурированное логирование** с поддержкой JSON, Key-Value и консольных форматов
-- **Контекстное логирование** с автоматической трассировкой запросов
-- **Фильтрация** по уровню, источнику, содержимому сообщений
-- **Ротация файлов** с настраиваемыми параметрами
-- **Middleware** для FastAPI, Flask, Django и ASGI приложений
-- **Обратная совместимость** с вашим текущим кодом
+  **The all-in-one structured logging solution for modern Python applications.**
+  
+  *Built on top of `structlog`. Designed for FastAPI, Flask, Django, and production scripts.*
 
-## Установка
+  [![PyPI Version](https://img.shields.io/pypi/v/lynx-logger?style=flat-square&color=blue)](https://pypi.org/project/lynx-logger/)
+  [![Python Versions](https://img.shields.io/pypi/pyversions/lynx-logger?style=flat-square)](https://pypi.org/project/lynx-logger/)
+  [![License](https://img.shields.io/pypi/l/lynx-logger?style=flat-square)](https://opensource.org/licenses/MIT)
+  [![Downloads](https://img.shields.io/pypi/dm/lynx-logger?style=flat-square&color=orange)](https://pypi.org/project/lynx-logger/)
+
+  [Features](#-features) • [Installation](#-installation) • [Quick Start](#-quick-start) • [Configuration](#-configuration) • [Integrations](#-integrations)
+
+</div>
+
+---
+
+## 🚀 Features
+
+**Lynx Logger** bridges the gap between simple `print` debugging and complex enterprise logging systems.
+
+* ✨ **Zero-Config Start:** Get beautiful logs with a single line of code.
+* 📦 **Structured & JSON:** Native JSON support for ELK Stack, Datadog, or Loki.
+* 🔍 **Context-Aware:** Automatic tracing of `request_id`, `user_id`, and trace contexts across your app.
+* 🛡 **Smart Filtering:** Built-in filters for PII (GDPR compliance), log levels, and sources.
+* 📂 **File Rotation:** Robust file handling with size limits and backups out of the box.
+* 🔌 **Framework Ready:** Middleware included for **FastAPI**, **Flask**, and **Django**.
+
+---
+
+## 📦 Installation
 
 ```bash
 pip install lynx-logger
-```
+````
 
-Дополнительные пакеты для веб-фреймворков:
-```bash
-pip install lynx-logger[web]  # FastAPI, Flask, Django
-pip install lynx-logger[all]  # Все зависимости + dev tools
-```
+**Optional Dependencies:**
 
-## Быстрый старт
+|**Extra**|**Use Case**|
+|---|---|
+|`lynx-logger[web]`|Optimized for web frameworks (FastAPI, Starlette, Flask, Django)|
+|`lynx-logger[all]`|Installs all dependencies including dev tools|
 
-### Базовое использование
+---
+
+## ⚡ Quick Start
+
+### 1. Basic Usage (Development)
+
+Perfect for local development with readable, colored output.
 
 ```python
 from lynx_logger import setup_logger
 
-logger = setup_logger("my_app")
-logger.info("Application started", version="1.0.0")
+logger = setup_logger("my_service")
 
+logger.info("Service started", version="1.0.0")
+logger.warning("Cache miss", key="user:123", latency_ms=45)
+# Output: 2025-02-05 [INFO] my_service: Service started version=1.0.0
+```
+
+### 2. Production Setup (JSON)
+
+Optimized for log aggregators.
+
+
+```python
 logger = setup_logger(
-    name="my_app",
-    level="DEBUG", 
-    format="json",
+    name="payment_service",
+    level="INFO", 
+    format="json",          # Outputs strict JSON
     log_to_file=True,
     logs_dir="./logs"
 )
 
-logger.info("User logged in", user_id=123, ip="192.168.1.1")
+logger.info("Transaction processed", amount=500, currency="USD", user_id=42)
+# Output: {"timestamp": "...", "level": "info", "event": "Transaction processed", "amount": 500, ...}
 ```
 
-Другиве примеры использования можно найти в [examples](examples/README.md) 
+---
 
-## Форматы вывода
+## 🎨 Output Formats
 
-### Console (цветной вывод для разработки)
-```python
-logger = setup_logger("app", format="console", dev_mode=True)
-logger.info("Server started", port=8000)
-# 2025-01-16T10:30:45 [INFO] app: Server started port=8000
-```
+|**Format**|**Example Output**|**Best For**|
+|---|---|---|
+|**Console**|`[INFO] app: Server started port=8000` (Colored)|Local Development|
+|**JSON**|`{"ts": "...", "level": "info", "msg": "Server started"}`|Production / ELK|
+|**Key-Value**|`level=info event='Server started' port=8000`|Legacy Systems|
 
-### JSON (для продакшна)
-```python  
-logger = setup_logger("app", format="json")
-logger.info("User action", user_id=123, action="login")
-# {"timestamp": "2025-01-16T10:30:45", "level": "info", "logger": "app", "event": "User action", "user_id": 123, "action": "login"}
-```
+---
 
-### Key-Value
-```python
-logger = setup_logger("app", format="keyvalue")
-logger.info("Payment processed", amount=100, currency="USD")
-# timestamp=2025-01-16T10:30:45 level=info logger=app event='Payment processed' amount=100 currency=USD
-```
+## 🧠 Context Management
 
-## Контекстное логирование
+Stop passing `user_id` as an argument to every function. Lynx Logger handles context for you.
 
-### Автоматический контекст
+### Automatic Context (Context Manager)
 
 ```python
 from lynx_logger import RequestContext
 
+# Automatically injects request_id into every log within this block
 with RequestContext(request_id="req_123", user_id="user_456"):
-    logger.info("Processing request")
-    # Автоматически добавит request_id и user_id во все логи
+    logger.info("Querying database") 
+    # Log includes: request_id="req_123" user_id="user_456"
 ```
 
-### Привязка контекста
+### Context Binding
+
 
 ```python
-# Создаем логгер с постоянным контекстом
-user_logger = logger.bind(user_id=123, session_id="sess_456")
-user_logger.info("User performed action", action="purchase")
+# Create a logger instance bound to specific data
+job_logger = logger.bind(job_id="job_999")
 
-# Временный контекст
-with logger.with_context(trace_id="trace_789"):
-    logger.info("Processing trace")
+job_logger.info("Job started") 
+job_logger.info("Job finished")
+# Both logs will contain job_id="job_999"
 ```
 
-### Стековый контекст
+---
 
-```python
-from lynx_logger import ContextLogger
+## 🛡 Advanced Filtering
 
-context_logger = ContextLogger(logger.get_logger())
+### Throttling (Rate Limiting)
 
-# Добавляем контекст в стек
-request_logger = context_logger.with_request("req_123", "user_456")
-request_logger.info("Request started")
-
-# Добавляем еще контекст
-operation_logger = request_logger.with_trace("trace_789")
-operation_logger.info("Operation completed")
-```
-
-## Фильтрация логов
-
-### Встроенные фильтры
-
-```python
-from lynx_logger import LogConfig, FilterConfig, Level
-
-config = LogConfig(
-    name="app",
-    filters=FilterConfig(
-        min_level=Level.WARNING,  # Только WARNING и выше
-        exclude_loggers=["urllib3", "requests"],  # Исключаем библиотеки
-        exclude_messages=["health.*", "ping"]  # Исключаем по regex
-    )
-)
-
-logger = LynxLogger(config)
-```
-
-### Пользовательские фильтры
-
-```python
-from lynx_logger import SourceFilter, ContentFilter
-
-# Фильтр по исходному файлу
-source_filter = SourceFilter(
-    include_patterns=["my_app.*"],
-    exclude_patterns=["test_.*"]
-)
-
-# Фильтр по содержимому
-content_filter = ContentFilter(
-    exclude_patterns=["password", "secret"],
-    case_sensitive=False
-)
-```
-
-## Конфигурация
-
-### Из переменных окружения
-
-```bash
-export LOG_NAME=my_app
-export LOG_LEVEL=DEBUG
-export LOG_FORMAT=json
-export LOG_TO_FILE=true
-export LOG_LOGS_DIR=/var/log/my_app
-```
-
-```python
-from lynx_logger import LogConfig
-
-config = LogConfig.from_env()
-logger = LynxLogger(config)
-```
-
-### Из словаря
-
-```python
-config_dict = {
-    "name": "my_app",
-    "level": "INFO",
-    "format": "json",
-    "log_to_file": True,
-    "file": {
-        "filename": "app.log",
-        "max_size": "50MB",
-        "backup_count": 10
-    }
-}
-
-config = LogConfig.from_dict(config_dict)
-logger = LynxLogger(config)
-```
-
-## Продвинутые возможности
-
-### Ротация файлов
-
-```python
-from lynx_logger import LogConfig, FileConfig
-
-config = LogConfig(
-    name="app",
-    log_to_file=True,
-    file=FileConfig(
-        filename="app.log",
-        max_size="10MB",      # Максимальный размер файла
-        backup_count=5,       # Количество архивных файлов
-        encoding="utf-8"
-    )
-)
-```
-
-### Throttling (ограничение частоты)
+Prevent log flooding when errors occur in a loop.
 
 ```python
 from lynx_logger import ThrottleFilter
 
-# Не более 10 одинаковых сообщений в минуту
+# Allow max 10 identical messages per minute
 throttle = ThrottleFilter(max_repeats=10, time_window=60)
 ```
 
-### Пользовательские процессоры
+### Content Filtering (GDPR/Security)
+
+Automatically mask or exclude sensitive data.
 
 ```python
-def add_hostname(logger, name, event_dict):
-    import socket
-    event_dict["hostname"] = socket.gethostname()
-    return event_dict
+from lynx_logger import ContentFilter, LogConfig, LynxLogger
 
 config = LogConfig(
     name="app",
-    extra_processors=[add_hostname]
+    filters=ContentFilter(
+        exclude_patterns=["password", "secret_key", "auth_token"],
+        case_sensitive=False
+    )
 )
+logger = LynxLogger(config)
 ```
 
-## Примеры использования
+---
 
-### Микросервис с трассировкой
+## ⚙️ Configuration
+
+Lynx Logger follows the **12-Factor App** methodology and can be configured via Environment Variables.
+
+|**Environment Variable**|**Default**|**Description**|
+|---|---|---|
+|`LOG_NAME`|`root`|Service name|
+|`LOG_LEVEL`|`INFO`|Logging level (DEBUG, INFO, ERROR)|
+|`LOG_FORMAT`|`console`|Output format: `console`, `json`, `keyvalue`|
+|`LOG_TO_FILE`|`false`|Enable file logging|
+|`LOG_DIR`|`./logs`|Directory for log files|
+
+**Or via Python Dictionary:**
+
+```python
+config = LogConfig.from_dict({
+    "name": "worker",
+    "level": "DEBUG",
+    "file": {
+        "filename": "worker.log",
+        "max_size": "50MB",
+        "backup_count": 5
+    }
+})
+```
+
+---
+
+## 🔌 Integrations
+
+### FastAPI Middleware Example
+
 
 ```python
 from fastapi import FastAPI, Request
@@ -236,64 +191,43 @@ from lynx_logger import setup_logger, RequestContext
 import uuid
 
 app = FastAPI()
-logger = setup_logger("payment_service", format="json")
+logger = setup_logger("api", format="json")
 
 @app.middleware("http")
-async def add_request_context(request: Request, call_next):
-    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+async def log_middleware(request: Request, call_next):
+    req_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
     
-    with RequestContext(request_id=request_id):
-        logger.info("Request started", path=request.url.path)
+    # Context is automatically cleared after the request finishes
+    with RequestContext(request_id=req_id, path=request.url.path):
+        logger.info("Request started")
         response = await call_next(request)
-        logger.info("Request completed", status=response.status_code)
+        logger.info("Request finished", status=response.status_code)
         return response
-
-@app.post("/pay")
-async def process_payment(amount: float, currency: str):
-    payment_logger = logger.bind(amount=amount, currency=currency)
-    payment_logger.info("Payment processing started")
-    
-    # Бизнес-логика
-    result = {"status": "success", "transaction_id": str(uuid.uuid4())}
-    
-    payment_logger.info("Payment completed", result=result)
-    return result
 ```
 
-### Обработка ошибок
+---
 
-```python
-from lynx_logger import setup_logger
+## 🤝 Contributing
 
-logger = setup_logger("error_handler", format="json")
+Contributions are welcome!
 
-def process_user_data(user_id: int, data: dict):
-    user_logger = logger.bind(user_id=user_id)
+1. Fork the repository.
     
-    try:
-        user_logger.info("Processing user data", data_keys=list(data.keys()))
-        
-        # Бизнес-логика
-        if not data.get("email"):
-            raise ValueError("Email is required")
-        
-        user_logger.info("User data processed successfully")
-        return {"status": "success"}
-        
-    except ValueError as e:
-        user_logger.warning("Validation error", error=str(e))
-        return {"status": "error", "message": str(e)}
-        
-    except Exception as e:
-        user_logger.exception("Unexpected error occurred")
-        return {"status": "error", "message": "Internal error"}
-```
+2. Create your feature branch.
+    
+3. Commit your changes.
+    
+4. Open a Pull Request.
+    
 
-## Лицензия
+Please open an [Issue](https://www.google.com/search?q=https://github.com/FlacSy/lynx-logger/issues) for any bugs or feature requests.
 
-MIT License - используйте свободно в коммерческих и некоммерческих проектах.
+## 📄 License
 
-## Поддержка
+This project is licensed under the **MIT License**.
 
-- **GitHub Issues**: [Сообщить о проблеме](https://github.com/NullPointerGang/lynx-logger/issues)
-- **Email**: flacsy.x@gmail.gom
+<div align="center">
+
+<sub>Developed with ❤️ by <a href="https://github.com/FlacSy">FlacSy</a></sub>
+
+</div>
