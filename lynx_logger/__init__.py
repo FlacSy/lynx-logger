@@ -12,7 +12,7 @@ from .filters import LogFilter, LevelFilter, SourceFilter, ContentFilter
 from .context import ContextLogger, RequestContext
 from .middleware import FastAPILoggingMiddleware, ASGILoggingMiddleware
 
-__version__ = "1.0.1"
+__version__ = "1.0.3"
 __all__ = [
     # Core
     "LynxLogger",
