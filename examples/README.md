@@ -1,127 +1,127 @@
-# Примеры использования LynxLogger
+# LynxLogger Usage Examples
 
-Этот каталог содержит примеры использования LynxLogger в различных сценариях.
+This directory contains examples of using LynxLogger in various scenarios.
 
-## Доступные примеры
+## Available Examples
 
-### 1. [simple_app.py](simple_app.py) - Простой пример
-Базовый пример использования LynxLogger без веб-фреймворка.
+### 1. [simple_app.py](simple_app.py) - Simple Example
+Basic example of using LynxLogger without a web framework.
 
-**Особенности:**
-- Создание логгера с помощью `setup_logger`
-- Логирование с контекстом (`RequestContext`)
-- Обработка исключений
-- Логирование в файл и консоль
+**Features:**
+- Creating a logger with `setup_logger`
+- Logging with context (`RequestContext`)
+- Exception handling
+- Logging to file and console
 
-**Запуск:**
+**Run:**
 ```bash
 python3 simple_app.py
 ```
 
-### 2. [formats_demo.py](formats_demo.py) - Демонстрация форматов
-Показывает различные форматы логирования.
+### 2. [formats_demo.py](formats_demo.py) - Format Demonstration
+Demonstrates different logging formats.
 
-**Особенности:**
-- JSON формат
-- Key-Value формат
-- Консольный формат (с цветами)
-- Простой текстовый формат
-- Логирование в файл
-- Смешанное логирование (консоль + файл)
+**Features:**
+- JSON format
+- Key-Value format
+- Console format (with colors)
+- Plain text format
+- Logging to file
+- Mixed logging (console + file)
 
-**Запуск:**
+**Run:**
 ```bash
 python3 formats_demo.py
 ```
 
-### 3. [fastapi_app.py](fastapi_app.py) - FastAPI приложение
-Пример интеграции с FastAPI.
+### 3. [fastapi_app.py](fastapi_app.py) - FastAPI Application
+Example of integration with FastAPI.
 
-**Особенности:**
-- FastAPI приложение с middleware
-- Автоматическое логирование HTTP запросов
-- Контекстная информация (request_id, trace_id)
-- Логирование времени обработки
+**Features:**
+- FastAPI application with middleware
+- Automatic HTTP request logging
+- Contextual information (request_id, trace_id)
+- Request processing time logging
 
-**Запуск:**
+**Run:**
 ```bash
-# Требует установки FastAPI и uvicorn
+# Requires FastAPI and uvicorn
 pip install fastapi uvicorn
 python3 fastapi_app.py
 ```
 
-### 4. [flask_app.py](flask_app.py) - Flask приложение
-Пример интеграции с Flask.
+### 4. [flask_app.py](flask_app.py) - Flask Application
+Example of integration with Flask.
 
-**Особенности:**
-- Flask приложение с middleware
-- Автоматическое логирование запросов
-- Логирование параметров запроса
+**Features:**
+- Flask application with middleware
+- Automatic request logging
+- Request parameter logging
 
-**Запуск:**
+**Run:**
 ```bash
-# Требует установки Flask
+# Requires Flask
 pip install flask
 python3 flask_app.py
 ```
 
-### 5. [django_app.py](django_app.py) - Django приложение
-Пример интеграции с Django.
+### 5. [django_app.py](django_app.py) - Django Application
+Example of integration with Django.
 
-**Особенности:**
-- Django приложение с middleware
-- Автоматическое логирование запросов
-- Логирование данных запроса
-- Использование `LynxLogger` напрямую
+**Features:**
+- Django application with middleware
+- Automatic request logging
+- Request data logging
+- Using `LynxLogger` directly
 
-**Запуск:**
+**Run:**
 ```bash
-# Требует установки Django
+# Requires Django
 pip install django
 python3 django_app.py
 ```
 
-## Структура логов
+## Log Structure
 
-Все примеры создают логи в директории `./logs/`:
+All examples create logs in the `./logs/` directory:
 
-- `app.log` - основной файл логов
-- `fastapi_app.log` - логи FastAPI приложения
-- `flask_app.log` - логи Flask приложения
-- `django_app.log` - логи Django приложения
+- `app.log` - main log file
+- `fastapi_app.log` - FastAPI application logs
+- `flask_app.log` - Flask application logs
+- `django_app.log` - Django application logs
 
-## Форматы логов
+## Log Formats
 
-LynxLogger поддерживает следующие форматы:
+LynxLogger supports the following formats:
 
-1. **JSON** - структурированный JSON формат
-2. **Key-Value** - формат ключ=значение
-3. **Console** - цветной консольный формат
-4. **Plain** - простой текстовый формат
+1. **JSON** - structured JSON format
+2. **Key-Value** - key=value format
+3. **Console** - colored console format
+4. **Plain** - plain text format
 
-## Контекстное логирование
+## Contextual Logging
 
-Примеры демонстрируют использование `RequestContext` для автоматического добавления контекстной информации:
+Examples demonstrate using `RequestContext` to automatically add contextual information:
 
 ```python
 with RequestContext(request_id="req_123", user_id="user_456"):
-    logger.info("Обработка запроса")
+    logger.info("Processing request")
 ```
 
-## Привязанные логгеры
+## Bound Loggers
 
-Примеры показывают создание привязанных логгеров с дополнительными полями:
+Examples show how to create bound loggers with additional fields:
 
 ```python
 api_logger = logger.bind(component="api", version="v1")
 user_logger = api_logger.bind(user_id="user_789")
 ```
 
-## Создание логгера
+## Logger Creation
 
-Примеры демонстрируют два способа создания логгера:
+Examples demonstrate two ways to create a logger:
 
-### 1. Через `setup_logger` (простой способ)
+### 1. Via `setup_logger` (simple approach)
 ```python
 from lynx_logger import setup_logger
 
@@ -135,7 +135,7 @@ logger = setup_logger(
 )
 ```
 
-### 2. Через `LynxLogger` напрямую (продвинутый способ)
+### 2. Via `LynxLogger` directly (advanced approach)
 ```python
 from lynx_logger import LynxLogger, Level, Format
 from lynx_logger.config import LogConfig, FileConfig
@@ -156,13 +156,13 @@ logger = LynxLogger(
 )
 ```
 
-## Запуск примеров
+## Running Examples
 
-Для запуска примеров без веб-фреймворков:
+To run examples without web frameworks:
 
 ```bash
 python3 simple_app.py
 python3 formats_demo.py
 ```
 
-Для запуска примеров с веб-фреймворками требуется установка соответствующих зависимостей. 
+Running examples with web frameworks requires installing the corresponding dependencies.
