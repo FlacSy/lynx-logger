@@ -9,7 +9,7 @@
   [![PyPI Version](https://img.shields.io/pypi/v/lynx-logger?style=flat-square&color=blue)](https://pypi.org/project/lynx-logger/)
   [![Python Versions](https://img.shields.io/pypi/pyversions/lynx-logger?style=flat-square)](https://pypi.org/project/lynx-logger/)
   [![License](https://img.shields.io/pypi/l/lynx-logger?style=flat-square)](https://opensource.org/licenses/MIT)
-  [![Downloads](https://img.shields.io/pypi/dm/lynx-logger?style=flat-square&color=orange)](https://pypi.org/project/lynx-logger/)
+  [![Downloads](https://static.pepy.tech/personalized-badge/lynx-logger?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/lynx-logger)
 
   [Features](#-features) • [Installation](#-installation) • [Quick Start](#-quick-start) • [Configuration](#-configuration) • [Integrations](#-integrations)
 
