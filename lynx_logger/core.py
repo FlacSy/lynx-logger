@@ -85,9 +85,16 @@ class LynxLogger:
             processors.append(ContextProcessor.add_process_info)
         
         processors.extend(self.config.extra_processors)
-        
-        processors.append(structlog.stdlib.ProcessorFormatter.wrap_for_formatter)
-        
+
+        # NOTE: these shared processors are used ONLY as the ProcessorFormatter's
+        # `foreign_pre_chain` (see get_formatter / _setup_console_handler), i.e.
+        # the chain applied to *foreign* (stdlib logging) records. It must NOT
+        # end with `wrap_for_formatter` — that processor belongs to the native
+        # structlog pipeline (added in _setup_structlog) and, when placed in a
+        # foreign_pre_chain, makes `remove_processors_meta` raise
+        # `TypeError: 'tuple' object does not support item deletion`, breaking
+        # every log record emitted through the stdlib `logging` API.
+
         return processors
     
     def _setup_console_handler(self, root_logger: logging.Logger, shared_processors: List[Any]):
